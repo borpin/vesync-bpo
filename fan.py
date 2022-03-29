@@ -20,12 +20,12 @@ _LOGGER = logging.getLogger(__name__)
 
 FAN_MODE_AUTO = "auto"
 FAN_MODE_SLEEP = "sleep"
-
+#Fixme add other models
 PRESET_MODES = {
-    "LV-PUR131S": [FAN_MODE_AUTO, FAN_MODE_SLEEP],
     "Core200S": [FAN_MODE_SLEEP],
     "Core300S": [FAN_MODE_AUTO, FAN_MODE_SLEEP],
     "Core400S": [FAN_MODE_AUTO, FAN_MODE_SLEEP],
+    "LV-PUR131S": [FAN_MODE_AUTO, FAN_MODE_SLEEP],
 }
 SPEED_RANGE = (1, 3)  # off is not included
 
