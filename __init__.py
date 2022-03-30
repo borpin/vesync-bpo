@@ -13,6 +13,7 @@ from .common import async_process_devices
 from .const import (
     DOMAIN,
     SERVICE_UPDATE_DEVS,
+    VS_BINARY_SENSORS,
     VS_DISCOVERY,
     VS_FANS,
     VS_HUMIDIFIERS,
@@ -30,7 +31,7 @@ PLATFORMS = [
     Platform.SENSOR,
     Platform.HUMIDIFIER,
     Platform.NUMBER,
-]
+    Platform.BINARY_SENSOR,]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,6 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     sensors = hass.data[DOMAIN][VS_SENSORS] = []
     humidifiers = hass.data[DOMAIN][VS_HUMIDIFIERS] = []
     numbers = hass.data[DOMAIN][VS_NUMBERS] = []
+    binary_sensors = hass.data[DOMAIN][VS_BINARY_SENSORS] = []
 
     if device_dict[VS_SWITCHES]:
         switches.extend(device_dict[VS_SWITCHES])
@@ -88,6 +90,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     if device_dict[VS_NUMBERS]:
         numbers.extend(device_dict[VS_NUMBERS])
         hass.async_create_task(forward_setup(config_entry, Platform.NUMBER))
+    
+    if device_dict[VS_BINARY_SENSORS]:
+        binary_sensors.extend(device_dict[VS_BINARY_SENSORS])
+        hass.async_create_task(forward_setup(config_entry, Platform.BINARY_SENSOR))
 
     async def async_new_device_discovery(service: ServiceCall) -> None:
         """Discover if new devices should be added."""
@@ -98,6 +104,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         sensors = hass.data[DOMAIN][VS_SENSORS]
         humidifiers = hass.data[DOMAIN][VS_HUMIDIFIERS]
         numbers = hass.data[DOMAIN][VS_NUMBERS]
+        binary_sensors = hass.data[DOMAIN][VS_BINARY_SENSORS]
 
         dev_dict = await async_process_devices(hass, manager)
         switch_devs = dev_dict.get(VS_SWITCHES, [])
@@ -106,6 +113,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         sensor_devs = dev_dict.get(VS_SENSORS, [])
         humidifier_devs = device_dict.get(VS_HUMIDIFIERS, [])
         number_devs = device_dict.get(VS_NUMBERS, [])
+        binary_sensor_devs = device_dict.get(VS_BINARY_SENSORS, [])
 
         switch_set = set(switch_devs)
         new_switches = list(switch_set.difference(switches))
@@ -168,6 +176,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         if new_sensors and not sensors:
             sensors.extend(new_sensors)
             hass.async_create_task(forward_setup(config_entry, Platform.SENSOR))
+
+        binary_sensor_set = set(binary_sensor_devs)
+        new_binary_sensors = list(binary_sensor_set.difference(binary_sensors))
+        if new_binary_sensors and binary_sensors:
+            binary_sensors.extend(new_binary_sensors)
+            async_dispatcher_send(hass, VS_DISCOVERY.format(VS_BINARY_SENSORS), new_binary_sensors)
+            return
+        if new_binary_sensors and not binary_sensors:
+            binary_sensors.extend(new_binary_sensors)
+            hass.async_create_task(forward_setup(config_entry, Platform.BINARY_SENSOR))
 
     hass.services.async_register(
         DOMAIN, SERVICE_UPDATE_DEVS, async_new_device_discovery

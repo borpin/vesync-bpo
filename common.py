@@ -12,6 +12,7 @@ from .const import (
     VS_NUMBERS,
     VS_SENSORS,
     VS_SWITCHES,
+    VS_BINARY_SENSORS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ async def async_process_devices(hass, manager):
     devices[VS_SENSORS] = []
     devices[VS_HUMIDIFIERS] = []
     devices[VS_NUMBERS] = []
+    devices[VS_BINARY_SENSORS] = []
 
     await hass.async_add_executor_job(manager.update)
 
@@ -42,6 +44,7 @@ async def async_process_devices(hass, manager):
                 devices[VS_NUMBERS].append(fan)  # for night light and mist level
                 devices[VS_SWITCHES].append(fan)  # for automatic stop and display
                 devices[VS_SENSORS].append(fan)  # for humidity sensor
+                devices[VS_BINARY_SENSORS].append(fan)  # for out of water and water tank lifted sensors
                 if fan.night_light:
                     devices[VS_LIGHTS].append(fan)  # for night light
             else:
