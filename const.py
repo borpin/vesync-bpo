@@ -1,6 +1,6 @@
 """Constants for VeSync Component."""
 
-DOMAIN = "vesync2"
+DOMAIN = "vesync"
 VS_DISCOVERY = "vesync_discovery_{}"
 SERVICE_UPDATE_DEVS = "update_devices"
 
@@ -18,7 +18,6 @@ DEV_TYPE_TO_HA = {
     "Core300S": "fan",
     "Core400S": "fan",
     "Classic300S": "humidifier",
-    "LUH-D301S-WEU": "humidifier",
     "ESD16": "walldimmer",
     "ESWD16": "walldimmer",
     "ESL100": "bulb-dimmable",

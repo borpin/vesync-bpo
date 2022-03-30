@@ -1,6 +1,7 @@
 """Common utilities for VeSync Component."""
 import logging
 
+from pyvesync.vesyncfan import humid_features, model_features
 from homeassistant.helpers.entity import Entity, ToggleEntity
 
 from .const import (
@@ -13,9 +14,12 @@ from .const import (
     VS_SWITCHES,
 )
 
-HUMIDIFIERS = ("Classic300S","LUH-D301S-WEU",)
-
 _LOGGER = logging.getLogger(__name__)
+
+
+def is_humidifier(device_type: str) -> bool:
+    """Return true if the device type is a humidifier."""
+    return model_features(device_type)["module"].find("VeSyncHumid") > -1
 
 
 async def async_process_devices(hass, manager):
@@ -33,7 +37,7 @@ async def async_process_devices(hass, manager):
     if manager.fans:
         for fan in manager.fans:
             # VeSync classifies humidifiers as fans
-            if fan.device_type in HUMIDIFIERS:
+            if is_humidifier(fan.device_type):
                 devices[VS_HUMIDIFIERS].append(fan)
                 devices[VS_NUMBERS].append(fan)  # for night light and mist level
                 devices[VS_SWITCHES].append(fan)  # for automatic stop and display
