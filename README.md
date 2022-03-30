@@ -9,3 +9,31 @@ The current HA Core PR this is pulled from is https://github.com/home-assistant/
 Key changes are that it now supports all devices and models found in the core Python Library https://github.com/webdjoe/pyvesync
 
 as at 30/03/22 there are still some wrinkles to iron out.
+
+## Sample script to test what the Library is saying about your devices
+
+```python
+from pyvesync import VeSync
+#from pyvesync.vesyncfan import model_features
+
+# TIME_ZONE and Debug are optional
+manager = VeSync("EMAIL", "PASSWORD", "TIME_ZONE", debug=True)
+manager.login()
+
+# Get/Update Devices from server - populate device lists
+manager.update()
+
+# Display fan devices found
+for device in manager.fans:
+  device.display()
+
+# Other bits I did to test stuff
+
+#my_fan = manager.fans[0]
+#print (manager.fans[0])
+#my_fan.set_humidity(40)
+#fan_features = model_features(my_fan.device_type)
+#print(model_features(my_fan.device_type)["module"])
+#print(my_fan.humidity)
+#my_fan.display()
+```
