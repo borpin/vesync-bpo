@@ -5,6 +5,7 @@ This is a vesync integration that can be installed while waiting for main HA int
 Install to a folder called `vesync2` in your `custom-integrations` folder and restart HA. Then Add a new integration and you will see the `vesync2` integration listed.
 
 The current HA Core PR this is pulled from is https://github.com/home-assistant/core/pull/62907
+Included 2 binary_sensors from https://github.com/alexanv1/core/tree/vesync_humidifier_support/homeassistant/components/vesync
 
 Key changes are that it now supports all devices and models found in the core Python Library https://github.com/webdjoe/pyvesync
 
