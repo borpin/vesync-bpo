@@ -45,6 +45,7 @@ def _setup_entities(devices, async_add_entities):
         elif is_humidifier(dev.device_type):
             entities.append(VeSyncHumidifierDisplayHA(dev))
             entities.append(VeSyncHumidifierAutomaticStopHA(dev))
+            entities.append(VeSyncHumidifierAutoOnHA(dev))
         else:
             _LOGGER.warning(
                 "%s - Unknown device type - %s", dev.device_name, dev.device_type
@@ -163,3 +164,30 @@ class VeSyncHumidifierAutomaticStopHA(VeSyncHumidifierSwitchEntity):
     def turn_off(self, **kwargs):
         """Turn the automatic stop off."""
         self.device.automatic_stop_off()
+
+class VeSyncHumidifierAutoOnHA(VeSyncHumidifierSwitchEntity):
+    """Provide switch to turn off auto mode and set manual mist level 1 on a VeSync humidifier."""
+
+    @property
+    def unique_id(self):
+        """Return the ID of this device."""
+        return f"{super().unique_id}-auto-mode"
+
+    @property
+    def name(self):
+        """Return the name of the device."""
+        return f"{super().name} auto mode"
+
+    @property
+    def is_on(self):
+        """Return True if in auto mode."""
+        return self.device.details["mode"] == "auto"
+
+    def turn_on(self, **kwargs):
+        """Turn auto mode on."""
+        self.device.set_auto_mode()
+
+    def turn_off(self, **kwargs):
+        """Turn auto off by setting manual and mist level 1."""
+        self.device.set_manual_mode()
+        self.device.set_mist_level(1)
