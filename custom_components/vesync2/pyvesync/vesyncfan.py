@@ -1,4 +1,4 @@
-"""VeSync API for controling fans and purifiers."""
+"""VeSync API for controlling fans and purifiers."""
 
 import json
 import logging
@@ -587,7 +587,7 @@ class VeSyncAir131(VeSyncBaseDevice):
     """Levoit Air Purifier Class."""
 
     def __init__(self, details, manager):
-        """Initilize air purifier class."""
+        """Initialize air purifier class."""
         super().__init__(details, manager)
 
         self.details: Dict = {}
