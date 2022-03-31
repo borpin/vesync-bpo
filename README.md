@@ -1,3 +1,5 @@
+Forked from https://github.com/borpin/vesync-bpo
+
 # VeSync custom-integration for Home-Assistant
 
 This is a vesync integration that can be installed while waiting for main HA integration to be updated
