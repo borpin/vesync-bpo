@@ -1,7 +1,7 @@
 """Config flow utilities."""
 from collections import OrderedDict
 
-from pyvesync import VeSync
+from .pyvesync import VeSync
 import voluptuous as vol
 
 from homeassistant import config_entries

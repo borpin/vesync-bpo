@@ -1,7 +1,7 @@
 """VeSync integration."""
 import logging
 
-from pyvesync import VeSync
+from .pyvesync import VeSync
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform

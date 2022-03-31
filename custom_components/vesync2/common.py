@@ -1,7 +1,7 @@
 """Common utilities for VeSync Component."""
 import logging
 
-from pyvesync.vesyncfan import humid_features, model_features
+from .pyvesync.vesyncfan import humid_features, model_features
 from homeassistant.helpers.entity import Entity, ToggleEntity
 
 from .const import (
