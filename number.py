@@ -11,6 +11,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .common import VeSyncBaseEntity, is_humidifier
 from .const import DOMAIN, VS_DISCOVERY, VS_NUMBERS
 
+MAX_HUMIDITY = 80
+MIN_HUMIDITY = 30
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -99,3 +102,40 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
     def set_value(self, value):
         """Set the mist level."""
         self.device.set_mist_level(int(value))
+
+class VeSyncHumidifierTargetLevelHA(VeSyncHumidifierNumberEntity):
+    """Representation of the mist level of a VeSync humidifier."""
+
+    @property
+    def unique_id(self):
+        """Return the ID of this device."""
+        return f"{super().unique_id}-target-level"
+
+    @property
+    def name(self):
+        """Return the name of the device."""
+        return f"{super().name} target level"
+
+    @property
+    def value(self):
+        """Return the mist level."""
+        return self.device.config["auto_target_humidity"]
+
+    @property
+    def min_value(self) -> float:
+        """Return the minimum mist level."""
+        return MIN_HUMIDITY
+
+    @property
+    def max_value(self) -> float:
+        """Return the maximum mist level."""
+        return MAX_HUMIDITY
+
+    @property
+    def step(self) -> float:
+        """Return the maximum mist level."""
+        return 1.0
+
+    def set_value(self, value):
+        """Set the mist level."""
+        self.device.set_humidity(int(value))
