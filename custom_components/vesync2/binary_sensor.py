@@ -2,7 +2,6 @@
 import logging
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -10,7 +9,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .common import VeSyncBaseEntity, is_humidifier
-from .const import DEV_TYPE_TO_HA, DOMAIN, VS_DISCOVERY, VS_BINARY_SENSORS
+from .const import DOMAIN, VS_BINARY_SENSORS, VS_DISCOVERY
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,6 +64,7 @@ class VeSyncHumidifierBinarySensorEntity(VeSyncBaseEntity, BinarySensorEntity):
 
 
 class VeSyncOutOfWaterSensor(VeSyncHumidifierBinarySensorEntity):
+    """Out of Water Sensor."""
 
     @property
     def unique_id(self):
@@ -81,7 +81,9 @@ class VeSyncOutOfWaterSensor(VeSyncHumidifierBinarySensorEntity):
         """Return a value indicating whether the Humidifier is out of water."""
         return self.smarthumidifier.details["water_lacks"]
 
+
 class VeSyncWaterTankLiftedSensor(VeSyncHumidifierBinarySensorEntity):
+    """Tank Lifted Sensor."""
 
     @property
     def unique_id(self):
