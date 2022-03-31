@@ -97,7 +97,7 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
 
     @property
     def step(self) -> float:
-        """Return the maximum mist level."""
+        """Return the steps for the mist level."""
         return 1.0
 
     @property
@@ -114,7 +114,7 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
         self.device.set_mist_level(int(value))
 
 class VeSyncHumidifierTargetLevelHA(VeSyncHumidifierNumberEntity):
-    """Representation of the mist level of a VeSync humidifier."""
+    """Representation of the target humidity level of a VeSync humidifier."""
 
     @property
     def unique_id(self):
@@ -128,24 +128,24 @@ class VeSyncHumidifierTargetLevelHA(VeSyncHumidifierNumberEntity):
 
     @property
     def value(self):
-        """Return the mist level."""
+        """Return the current target humidity level."""
         return self.device.config["auto_target_humidity"]
 
     @property
     def min_value(self) -> float:
-        """Return the minimum mist level."""
+        """Return the minimum humidity level."""
         return MIN_HUMIDITY
 
     @property
     def max_value(self) -> float:
-        """Return the maximum mist level."""
+        """Return the maximum humidity level."""
         return MAX_HUMIDITY
 
     @property
     def step(self) -> float:
-        """Return the maximum mist level."""
+        """Return the humidity change step."""
         return 1.0
 
     def set_value(self, value):
-        """Set the mist level."""
+        """Set the target humidity level."""
         self.device.set_humidity(int(value))
