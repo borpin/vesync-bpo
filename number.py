@@ -43,6 +43,7 @@ def _setup_entities(devices, async_add_entities):
     for dev in devices:
         if is_humidifier(dev.device_type):
             entities.append(VeSyncHumidifierMistLevelHA(dev))
+            entities.append(VeSyncHumidifierTargetLevelHA(dev))
         else:
             _LOGGER.debug(
                 "%s - Unknown device type - %s", dev.device_name, dev.device_type
