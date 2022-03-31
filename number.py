@@ -100,6 +100,15 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
         """Return the maximum mist level."""
         return 1.0
 
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes of the humidifier."""
+        attr = {}
+
+        attr["mist levels"] = self.device.config_dict["mist_levels"]
+
+        return attr
+
     def set_value(self, value):
         """Set the mist level."""
         self.device.set_mist_level(int(value))
