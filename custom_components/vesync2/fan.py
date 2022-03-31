@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 FAN_MODE_AUTO = "auto"
 FAN_MODE_SLEEP = "sleep"
-#Fixme add other models
+# Fixme add other models
 PRESET_MODES = {
     "Core200S": [FAN_MODE_SLEEP],
     "Core300S": [FAN_MODE_AUTO, FAN_MODE_SLEEP],

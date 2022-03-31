@@ -1,8 +1,6 @@
 """VeSync integration."""
 import logging
 
-from .pyvesync import VeSync
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -23,6 +21,7 @@ from .const import (
     VS_SENSORS,
     VS_SWITCHES,
 )
+from .pyvesync import VeSync
 
 PLATFORMS = [
     Platform.SWITCH,
@@ -31,7 +30,8 @@ PLATFORMS = [
     Platform.SENSOR,
     Platform.HUMIDIFIER,
     Platform.NUMBER,
-    Platform.BINARY_SENSOR,]
+    Platform.BINARY_SENSOR,
+]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     if device_dict[VS_NUMBERS]:
         numbers.extend(device_dict[VS_NUMBERS])
         hass.async_create_task(forward_setup(config_entry, Platform.NUMBER))
-    
+
     if device_dict[VS_BINARY_SENSORS]:
         binary_sensors.extend(device_dict[VS_BINARY_SENSORS])
         hass.async_create_task(forward_setup(config_entry, Platform.BINARY_SENSOR))
@@ -181,7 +181,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         new_binary_sensors = list(binary_sensor_set.difference(binary_sensors))
         if new_binary_sensors and binary_sensors:
             binary_sensors.extend(new_binary_sensors)
-            async_dispatcher_send(hass, VS_DISCOVERY.format(VS_BINARY_SENSORS), new_binary_sensors)
+            async_dispatcher_send(
+                hass, VS_DISCOVERY.format(VS_BINARY_SENSORS), new_binary_sensors
+            )
             return
         if new_binary_sensors and not binary_sensors:
             binary_sensors.extend(new_binary_sensors)

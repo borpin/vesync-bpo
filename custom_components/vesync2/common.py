@@ -1,19 +1,19 @@
 """Common utilities for VeSync Component."""
 import logging
 
-from .pyvesync.vesyncfan import humid_features, model_features
 from homeassistant.helpers.entity import Entity, ToggleEntity
 
 from .const import (
     DOMAIN,
+    VS_BINARY_SENSORS,
     VS_FANS,
     VS_HUMIDIFIERS,
     VS_LIGHTS,
     VS_NUMBERS,
     VS_SENSORS,
     VS_SWITCHES,
-    VS_BINARY_SENSORS,
 )
+from .pyvesync.vesyncfan import model_features
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +44,9 @@ async def async_process_devices(hass, manager):
                 devices[VS_NUMBERS].append(fan)  # for night light and mist level
                 devices[VS_SWITCHES].append(fan)  # for automatic stop and display
                 devices[VS_SENSORS].append(fan)  # for humidity sensor
-                devices[VS_BINARY_SENSORS].append(fan)  # for out of water and water tank lifted sensors
+                devices[VS_BINARY_SENSORS].append(
+                    fan
+                )  # for out of water and water tank lifted sensors
                 if fan.night_light:
                     devices[VS_LIGHTS].append(fan)  # for night light
             else:

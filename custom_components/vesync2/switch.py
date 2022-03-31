@@ -165,6 +165,7 @@ class VeSyncHumidifierAutomaticStopHA(VeSyncHumidifierSwitchEntity):
         """Turn the automatic stop off."""
         self.device.automatic_stop_off()
 
+
 class VeSyncHumidifierAutoOnHA(VeSyncHumidifierSwitchEntity):
     """Provide switch to turn off auto mode and set manual mist level 1 on a VeSync humidifier."""
 

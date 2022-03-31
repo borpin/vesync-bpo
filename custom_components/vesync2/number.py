@@ -113,6 +113,7 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
         """Set the mist level."""
         self.device.set_mist_level(int(value))
 
+
 class VeSyncHumidifierTargetLevelHA(VeSyncHumidifierNumberEntity):
     """Representation of the target humidity level of a VeSync humidifier."""
 
