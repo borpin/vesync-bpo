@@ -91,6 +91,11 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
         """Return the maximum mist level."""
         return self.device.config_dict["mist_levels"][-1]
 
+    @property
+    def step(self) -> float:
+        """Return the maximum mist level."""
+        return 1.0
+
     def set_value(self, value):
         """Set the mist level."""
         self.device.set_mist_level(int(value))
