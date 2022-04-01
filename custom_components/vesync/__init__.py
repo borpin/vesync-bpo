@@ -57,16 +57,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     forward_setup = hass.config_entries.async_forward_entry_setup
 
-    hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][VS_MANAGER] = manager
+    hass.data[DOMAIN] = {config_entry.entry_id: {}}
+    hass.data[DOMAIN][config_entry.entry_id][VS_MANAGER] = manager
 
-    switches = hass.data[DOMAIN][VS_SWITCHES] = []
-    fans = hass.data[DOMAIN][VS_FANS] = []
-    lights = hass.data[DOMAIN][VS_LIGHTS] = []
-    sensors = hass.data[DOMAIN][VS_SENSORS] = []
-    humidifiers = hass.data[DOMAIN][VS_HUMIDIFIERS] = []
-    numbers = hass.data[DOMAIN][VS_NUMBERS] = []
-    binary_sensors = hass.data[DOMAIN][VS_BINARY_SENSORS] = []
+    switches = hass.data[DOMAIN][config_entry.entry_id][VS_SWITCHES] = []
+    fans = hass.data[DOMAIN][config_entry.entry_id][VS_FANS] = []
+    lights = hass.data[DOMAIN][config_entry.entry_id][VS_LIGHTS] = []
+    sensors = hass.data[DOMAIN][config_entry.entry_id][VS_SENSORS] = []
+    humidifiers = hass.data[DOMAIN][config_entry.entry_id][VS_HUMIDIFIERS] = []
+    numbers = hass.data[DOMAIN][config_entry.entry_id][VS_NUMBERS] = []
+    binary_sensors = hass.data[DOMAIN][config_entry.entry_id][VS_BINARY_SENSORS] = []
 
     if device_dict[VS_SWITCHES]:
         switches.extend(device_dict[VS_SWITCHES])
@@ -97,14 +97,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     async def async_new_device_discovery(service: ServiceCall) -> None:
         """Discover if new devices should be added."""
-        manager = hass.data[DOMAIN][VS_MANAGER]
-        switches = hass.data[DOMAIN][VS_SWITCHES]
-        fans = hass.data[DOMAIN][VS_FANS]
-        lights = hass.data[DOMAIN][VS_LIGHTS]
-        sensors = hass.data[DOMAIN][VS_SENSORS]
-        humidifiers = hass.data[DOMAIN][VS_HUMIDIFIERS]
-        numbers = hass.data[DOMAIN][VS_NUMBERS]
-        binary_sensors = hass.data[DOMAIN][VS_BINARY_SENSORS]
+        manager = hass.data[DOMAIN][config_entry.entry_id][VS_MANAGER]
+        switches = hass.data[DOMAIN][config_entry.entry_id][VS_SWITCHES]
+        fans = hass.data[DOMAIN][config_entry.entry_id][VS_FANS]
+        lights = hass.data[DOMAIN][config_entry.entry_id][VS_LIGHTS]
+        sensors = hass.data[DOMAIN][config_entry.entry_id][VS_SENSORS]
+        humidifiers = hass.data[DOMAIN][config_entry.entry_id][VS_HUMIDIFIERS]
+        numbers = hass.data[DOMAIN][config_entry.entry_id][VS_NUMBERS]
+        binary_sensors = hass.data[DOMAIN][config_entry.entry_id][VS_BINARY_SENSORS]
 
         dev_dict = await async_process_devices(hass, manager)
         switch_devs = dev_dict.get(VS_SWITCHES, [])
