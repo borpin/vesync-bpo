@@ -5,8 +5,8 @@ import json
 import logging
 from typing import Dict, Union
 
-from pyvesync.helpers import Helpers as helpers
-from pyvesync.vesyncbasedevice import VeSyncBaseDevice
+from .helpers import Helpers as helpers
+from .vesyncbasedevice import VeSyncBaseDevice
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,7 @@ __all__: list = list(bulb_modules.values()) + ["bulb_modules"]
 
 def pct_to_kelvin(pct: float, max_k: int = 6500, min_k: int = 2700) -> float:
     """Convert percent to kelvin."""
-    kelvin = ((max_k - min_k) * pct / 100) + min_k
-    return kelvin
+    return ((max_k - min_k) * pct / 100) + min_k
 
 
 class VeSyncBulb(VeSyncBaseDevice):
@@ -45,7 +44,7 @@ class VeSyncBulb(VeSyncBaseDevice):
         self.features = feature_dict.get(self.device_type, {}).get("features")
         if self.features is None:
             logger.error("No configuration set for - %s", self.device_name)
-            raise Exception
+            raise RuntimeError(f"No configuration set for - {self.device_name}")
 
     @property
     def brightness(self) -> int:
@@ -71,23 +70,17 @@ class VeSyncBulb(VeSyncBaseDevice):
     @property
     def dimmable_feature(self) -> bool:
         """Return true if dimmable bulb."""
-        if "dimmable" in self.features:
-            return True
-        return False
+        return "dimmable" in self.features
 
     @property
     def color_temp_feature(self) -> bool:
         """Return true if bulb supports color temperature changes."""
-        if "color_temp" in feature_dict[self.device_type]:
-            return True
-        return False
+        return "color_temp" in feature_dict[self.device_type]
 
     @property
     def rgb_shift_feature(self) -> bool:
         """Return True if bulb supports changing color."""
-        if "rgb_shift" in feature_dict[self.device_type]:
-            return True
-        return False
+        return "rgb_shift" in feature_dict[self.device_type]
 
     @abstractmethod
     def get_details(self) -> None:
@@ -103,18 +96,17 @@ class VeSyncBulb(VeSyncBaseDevice):
 
     def turn_on(self) -> bool:
         """Turn on vesync bulbs."""
-        if self.toggle("on"):
-            self.device_status = "on"
-            return True
-        logger.warning("Error turning %s on", self.device_name)
-        return False
+        return self._toggle("on")
 
     def turn_off(self) -> bool:
         """Turn off vesync bulbs."""
-        if self.toggle("off"):
-            self.device_status = "off"
+        return self._toggle("off")
+
+    def _toggle(self, state: str, warning: str):
+        if self.toggle(state):
+            self.device_status = state
             return True
-        logger.warning("Error turning %s off", self.device_name)
+        logger.warning("Error turning %s %s", self.device_name, state)
         return False
 
     def update(self) -> None:
@@ -124,11 +116,10 @@ class VeSyncBulb(VeSyncBaseDevice):
     def display(self) -> None:
         """Return formatted bulb info to stdout."""
         super().display()
-        if self.connection_status == "online":
-            if self.dimmable_feature:
-                disp1 = [("Brightness: ", self.brightness, "%")]
-                for line in disp1:
-                    print(f"{line[0]:.<17} {line[1]} {line[2]}")
+        if self.connection_status == "online" and self.dimmable_feature:
+            disp1 = [("Brightness: ", self.brightness, "%")]
+            for line in disp1:
+                print(f"{line[0]:.<17} {line[1]} {line[2]}")
 
     def displayJSON(self) -> str:
         """Return bulb device info in JSON format."""
@@ -188,9 +179,7 @@ class VeSyncBulbESL100(VeSyncBulb):
 
     def toggle(self, status) -> bool:
         """Toggle dimmable bulb."""
-        body = helpers.req_body(self.manager, "devicestatus")
-        body["uuid"] = self.uuid
-        body["status"] = status
+        body = self._get_body(status)
         r, _ = helpers.call_api(
             "/SmartBulb/v1/device/devicestatus",
             "put",
@@ -212,9 +201,7 @@ class VeSyncBulbESL100(VeSyncBulb):
             logger.warning("Invalid brightness")
             return False
 
-        body = helpers.req_body(self.manager, "devicestatus")
-        body["uuid"] = self.uuid
-        body["status"] = "on"
+        body = self._get_body("on")
         body["brightNess"] = str(brightness)
         r, _ = helpers.call_api(
             "/SmartBulb/v1/device/updateBrightness",
@@ -229,6 +216,12 @@ class VeSyncBulbESL100(VeSyncBulb):
 
         logger.debug("Error setting brightness for %s", self.device_name)
         return False
+
+    def _get_body(self, status: str):
+        body = helpers.req_body(self.manager, "devicestatus")
+        body["uuid"] = self.uuid
+        body["status"] = status
+        return body
 
 
 class VeSyncBulbESL100CW(VeSyncBulb):

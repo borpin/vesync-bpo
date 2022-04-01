@@ -5,8 +5,8 @@ import json
 import logging
 import time
 
-from pyvesync.helpers import Helpers
-from pyvesync.vesyncbasedevice import VeSyncBaseDevice
+from .helpers import Helpers
+from .vesyncbasedevice import VeSyncBaseDevice
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class VeSyncOutlet(VeSyncBaseDevice):
 
     def update_energy(self, bypass_check: bool = False):
         """Build weekly, monthly and yearly dictionaries."""
-        if bypass_check or (not bypass_check and self.update_time_check):
+        if bypass_check or self.update_time_check:
             self.update_energy_ts = time.time()
             self.get_weekly_energy()
             if "week" in self.energy:
@@ -171,7 +171,7 @@ class VeSyncOutlet7A(VeSyncOutlet):
     def get_details(self) -> None:
         """Get 7A outlet details."""
         r, _ = Helpers.call_api(
-            "/v1/device/" + self.cid + "/detail",
+            f"/v1/device/{self.cid}/detail",
             "get",
             headers=Helpers.req_headers(self.manager),
         )
@@ -192,7 +192,7 @@ class VeSyncOutlet7A(VeSyncOutlet):
     def get_weekly_energy(self) -> None:
         """Get 7A outlet weekly energy info and build weekly energy dict."""
         r, _ = Helpers.call_api(
-            "/v1/device/" + self.cid + "/energy/week",
+            f"/v1/device/{self.cid}/energy/week",
             "get",
             headers=Helpers.req_headers(self.manager),
         )
@@ -205,7 +205,7 @@ class VeSyncOutlet7A(VeSyncOutlet):
     def get_monthly_energy(self) -> None:
         """Get 7A outlet monthly energy info and build monthly energy dict."""
         r, _ = Helpers.call_api(
-            "/v1/device/" + self.cid + "/energy/month",
+            f"/v1/device/{self.cid}/energy/month",
             "get",
             headers=Helpers.req_headers(self.manager),
         )
@@ -218,7 +218,7 @@ class VeSyncOutlet7A(VeSyncOutlet):
     def get_yearly_energy(self) -> None:
         """Get 7A outlet yearly energy info and build yearly energy dict."""
         r, _ = Helpers.call_api(
-            "/v1/device/" + self.cid + "/energy/year",
+            f"/v1/device/{self.cid}/energy/year",
             "get",
             headers=Helpers.req_headers(self.manager),
         )
@@ -230,38 +230,29 @@ class VeSyncOutlet7A(VeSyncOutlet):
 
     def turn_on(self) -> bool:
         """Turn 7A outlet on - return True if successful."""
-        _, status_code = Helpers.call_api(
-            "/v1/wifi-switch-1.3/" + self.cid + "/status/on",
-            "put",
-            headers=Helpers.req_headers(self.manager),
-        )
-
-        if status_code is not None and status_code == 200:
-            self.device_status = "on"
-
-            return True
-        logger.warning("Error turning %s on", self.device_name)
-        return False
+        return self._toggle("on")
 
     def turn_off(self) -> bool:
         """Turn 7A outlet off - return True if successful."""
+        return self._toggle("off")
+
+    def _toggle(self, state):
         _, status_code = Helpers.call_api(
-            "/v1/wifi-switch-1.3/" + self.cid + "/status/off",
+            f"/v1/wifi-switch-1.3/{self.cid}/status/{state}",
             "put",
             headers=Helpers.req_headers(self.manager),
         )
 
         if status_code is not None and status_code == 200:
-            self.device_status = "off"
-
+            self.device_status = state
             return True
-        logger.warning("Error turning %s off", self.device_name)
+        logger.warning("Error turning %s %s", self.device_name, state)
         return False
 
     def get_config(self) -> None:
         """Get 7A outlet configuration info."""
         r, _ = Helpers.call_api(
-            "/v1/device/" + self.cid + "/configurations",
+            f"/v1/device/{self.cid}/configurations",
             "get",
             headers=Helpers.req_headers(self.manager),
         )
@@ -558,28 +549,16 @@ class VeSyncOutlet15A(VeSyncOutlet):
 
     def turn_on_nightlight(self) -> bool:
         """Turn on nightlight."""
-        body = Helpers.req_body(self.manager, "devicestatus")
-        body["uuid"] = self.uuid
-        body["mode"] = "auto"
-
-        response, _ = Helpers.call_api(
-            "/15a/v1/device/nightlightstatus",
-            "put",
-            headers=Helpers.req_headers(self.manager),
-            json=body,
-        )
-
-        if Helpers.code_check(response):
-            return True
-        logger.debug("Error turning on %s nightlight", self.device_name)
-        return False
+        return self._extracted_from_turn_off_nightlight_3("auto")
 
     def turn_off_nightlight(self) -> bool:
         """Turn Off Nightlight."""
+        return self._extracted_from_turn_off_nightlight_3("manual")
+
+    def _extracted_from_turn_off_nightlight_3(self, mode):
         body = Helpers.req_body(self.manager, "devicestatus")
         body["uuid"] = self.uuid
-        body["mode"] = "manual"
-
+        body["mode"] = mode
         response, _ = Helpers.call_api(
             "/15a/v1/device/nightlightstatus",
             "put",
@@ -589,7 +568,11 @@ class VeSyncOutlet15A(VeSyncOutlet):
 
         if Helpers.code_check(response):
             return True
-        logger.debug("Error turning off %s nightlight", self.device_name)
+        logger.debug(
+            "Error turning %s %s nightlight",
+            "on" if mode == "auto" else "off",
+            self.device_name,
+        )
         return False
 
 
