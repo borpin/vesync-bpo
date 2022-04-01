@@ -5,8 +5,8 @@ import json
 import logging
 from typing import Dict, Union
 
-from pyvesync.helpers import Helpers as helpers
-from pyvesync.vesyncbasedevice import VeSyncBaseDevice
+from .helpers import Helpers as helpers
+from .vesyncbasedevice import VeSyncBaseDevice
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +31,8 @@ class VeSyncSwitch(VeSyncBaseDevice):
         super().__init__(details, manager)
         self.features = feature_dict.get(self.device_type, {}).get("features")
         if self.features is None:
-            logger.error("% device configuration not set", self.device_name)
-            raise Exception
+            logger.error("No configuration set for - %s", self.device_name)
+            raise RuntimeError(f"No configuration set for - {self.device_name}")
         self.details = {}
 
     def is_dimmable(self) -> bool:
@@ -318,7 +318,7 @@ class VeSyncDimmerSwitch(VeSyncSwitch):
     def displayJSON(self) -> str:
         """JSON API for dimmer switch."""
         sup_val = json.loads(super().displayJSON())
-        if self.is_dimmable:  # pylint: disable=using-constant-test
+        if self.is_dimmable:
             sup_val.update(
                 {
                     "Indicator Light": str(self.active_time),

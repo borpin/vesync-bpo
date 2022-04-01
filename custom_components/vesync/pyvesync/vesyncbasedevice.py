@@ -102,7 +102,7 @@ class VeSyncBaseDevice:
         for k, v in disp1.items():
             print(f"{k:.<15} {v:<15}")
 
-    def displayJSON(self) -> str:  # pylint: disable=invalid-name
+    def displayJSON(self) -> str:
         """JSON API for device details."""
         return json.dumps(
             {
