@@ -23,15 +23,15 @@ from .const import (
 )
 from .pyvesync.vesync import VeSync
 
-PLATFORMS = [
-    Platform.SWITCH,
-    Platform.FAN,
-    Platform.LIGHT,
-    Platform.SENSOR,
-    Platform.HUMIDIFIER,
-    Platform.NUMBER,
-    Platform.BINARY_SENSOR,
-]
+PLATFORMS = {
+    Platform.SWITCH: VS_SWITCHES,
+    Platform.FAN: VS_FANS,
+    Platform.LIGHT: VS_LIGHTS,
+    Platform.SENSOR: VS_SENSORS,
+    Platform.HUMIDIFIER: VS_HUMIDIFIERS,
+    Platform.NUMBER: VS_NUMBERS,
+    Platform.BINARY_SENSOR: VS_BINARY_SENSORS,
+}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,40 +60,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.data[DOMAIN] = {config_entry.entry_id: {}}
     hass.data[DOMAIN][config_entry.entry_id][VS_MANAGER] = manager
 
-    switches = hass.data[DOMAIN][config_entry.entry_id][VS_SWITCHES] = []
-    fans = hass.data[DOMAIN][config_entry.entry_id][VS_FANS] = []
-    lights = hass.data[DOMAIN][config_entry.entry_id][VS_LIGHTS] = []
-    sensors = hass.data[DOMAIN][config_entry.entry_id][VS_SENSORS] = []
-    humidifiers = hass.data[DOMAIN][config_entry.entry_id][VS_HUMIDIFIERS] = []
-    numbers = hass.data[DOMAIN][config_entry.entry_id][VS_NUMBERS] = []
-    binary_sensors = hass.data[DOMAIN][config_entry.entry_id][VS_BINARY_SENSORS] = []
-
-    if device_dict[VS_SWITCHES]:
-        switches.extend(device_dict[VS_SWITCHES])
-        hass.async_create_task(forward_setup(config_entry, Platform.SWITCH))
-
-    if device_dict[VS_FANS]:
-        fans.extend(device_dict[VS_FANS])
-        hass.async_create_task(forward_setup(config_entry, Platform.FAN))
-
-    if device_dict[VS_LIGHTS]:
-        lights.extend(device_dict[VS_LIGHTS])
-        hass.async_create_task(forward_setup(config_entry, Platform.LIGHT))
-
-    if device_dict[VS_SENSORS]:
-        sensors.extend(device_dict[VS_SENSORS])
-        hass.async_create_task(forward_setup(config_entry, Platform.SENSOR))
-    if device_dict[VS_HUMIDIFIERS]:
-        humidifiers.extend(device_dict[VS_HUMIDIFIERS])
-        hass.async_create_task(forward_setup(config_entry, Platform.HUMIDIFIER))
-
-    if device_dict[VS_NUMBERS]:
-        numbers.extend(device_dict[VS_NUMBERS])
-        hass.async_create_task(forward_setup(config_entry, Platform.NUMBER))
-
-    if device_dict[VS_BINARY_SENSORS]:
-        binary_sensors.extend(device_dict[VS_BINARY_SENSORS])
-        hass.async_create_task(forward_setup(config_entry, Platform.BINARY_SENSOR))
+    for p, vs_p in PLATFORMS.items():
+        hass.data[DOMAIN][config_entry.entry_id][vs_p] = []
+        if device_dict[VS_SWITCHES]:
+            hass.data[DOMAIN][config_entry.entry_id][vs_p].extend(device_dict[vs_p])
+            hass.async_create_task(forward_setup(config_entry, p))
 
     async def async_new_device_discovery(service: ServiceCall) -> None:
         """Discover if new devices should be added."""
@@ -198,7 +169,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        entry, list(PLATFORMS.keys())
+    )
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
