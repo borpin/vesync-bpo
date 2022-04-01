@@ -46,8 +46,7 @@ def _setup_entities(devices, async_add_entities):
     entities = []
     for dev in devices:
         if DEV_TYPE_TO_HA.get(dev.device_type) == "outlet":
-            entities.append(VeSyncPowerSensor(dev))
-            entities.append(VeSyncEnergySensor(dev))
+            entities.extend((VeSyncPowerSensor(dev), VeSyncEnergySensor(dev)))
         elif is_humidifier(dev.device_type):
             entities.append(VeSyncHumiditySensor(dev))
         else:

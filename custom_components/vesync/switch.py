@@ -45,9 +45,14 @@ def _setup_entities(devices, async_add_entities):
         elif DEV_TYPE_TO_HA.get(dev.device_type) == "switch":
             entities.append(VeSyncLightSwitch(dev))
         elif is_humidifier(dev.device_type):
-            entities.append(VeSyncHumidifierDisplayHA(dev))
-            entities.append(VeSyncHumidifierAutomaticStopHA(dev))
-            entities.append(VeSyncHumidifierAutoOnHA(dev))
+            entities.extend(
+                (
+                    VeSyncHumidifierDisplayHA(dev),
+                    VeSyncHumidifierAutomaticStopHA(dev),
+                    VeSyncHumidifierAutoOnHA(dev),
+                )
+            )
+
         else:
             _LOGGER.warning(
                 "%s - Unknown device type - %s", dev.device_name, dev.device_type
@@ -76,14 +81,16 @@ class VeSyncSwitchHA(VeSyncBaseSwitch, SwitchEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes of the device."""
-        if not hasattr(self.smartplug, "weekly_energy_total"):
-            return {}
-        return {
-            "voltage": self.smartplug.voltage,
-            "weekly_energy_total": self.smartplug.weekly_energy_total,
-            "monthly_energy_total": self.smartplug.monthly_energy_total,
-            "yearly_energy_total": self.smartplug.yearly_energy_total,
-        }
+        return (
+            {
+                "voltage": self.smartplug.voltage,
+                "weekly_energy_total": self.smartplug.weekly_energy_total,
+                "monthly_energy_total": self.smartplug.monthly_energy_total,
+                "yearly_energy_total": self.smartplug.yearly_energy_total,
+            }
+            if hasattr(self.smartplug, "weekly_energy_total")
+            else {}
+        )
 
     def update(self):
         """Update outlet details and energy usage."""

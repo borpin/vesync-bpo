@@ -25,14 +25,15 @@ def is_humidifier(device_type: str) -> bool:
 
 async def async_process_devices(hass, manager):
     """Assign devices to proper component."""
-    devices = {}
-    devices[VS_SWITCHES] = []
-    devices[VS_FANS] = []
-    devices[VS_LIGHTS] = []
-    devices[VS_SENSORS] = []
-    devices[VS_HUMIDIFIERS] = []
-    devices[VS_NUMBERS] = []
-    devices[VS_BINARY_SENSORS] = []
+    devices = {
+        VS_SWITCHES: [],
+        VS_FANS: [],
+        VS_LIGHTS: [],
+        VS_SENSORS: [],
+        VS_HUMIDIFIERS: [],
+        VS_NUMBERS: [],
+        VS_BINARY_SENSORS: [],
+    }
 
     await hass.async_add_executor_job(manager.update)
 
