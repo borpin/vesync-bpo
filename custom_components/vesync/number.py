@@ -44,8 +44,13 @@ def _setup_entities(devices, async_add_entities):
     entities = []
     for dev in devices:
         if is_humidifier(dev.device_type):
-            entities.append(VeSyncHumidifierMistLevelHA(dev))
-            entities.append(VeSyncHumidifierTargetLevelHA(dev))
+            entities.extend(
+                (
+                    VeSyncHumidifierMistLevelHA(dev),
+                    VeSyncHumidifierTargetLevelHA(dev),
+                )
+            )
+
         else:
             _LOGGER.debug(
                 "%s - Unknown device type - %s", dev.device_name, dev.device_type
@@ -105,11 +110,7 @@ class VeSyncHumidifierMistLevelHA(VeSyncHumidifierNumberEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes of the humidifier."""
-        attr = {}
-
-        attr["mist levels"] = self.device.config_dict["mist_levels"]
-
-        return attr
+        return {"mist levels": self.device.config_dict["mist_levels"]}
 
     def set_value(self, value):
         """Set the mist level."""

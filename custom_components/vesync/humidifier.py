@@ -142,7 +142,7 @@ class VeSyncHumidifierHA(VeSyncDevice, HumidifierEntity):
             self.smarthumidifier.set_mist_level(
                 self.smarthumidifier.details["mist_level"]
             )
-        elif mode in self.available_modes:
+        else:
             self.smarthumidifier.set_humidity_mode(mode)
         self.schedule_update_ha_state()
 
