@@ -6,16 +6,14 @@ import re
 import time
 from typing import Tuple
 
-from pyvesync.helpers import Helpers
-from pyvesync.vesyncbasedevice import VeSyncBaseDevice
-import pyvesync.vesyncbulb as bulb_mods
-from pyvesync.vesyncbulb import *  # noqa: F403, F401
-import pyvesync.vesyncfan as fan_mods
-from pyvesync.vesyncfan import *  # noqa: F403, F401
-import pyvesync.vesyncoutlet as outlet_mods
-from pyvesync.vesyncoutlet import *  # noqa: F403, F401
-import pyvesync.vesyncswitch as switch_mods
-from pyvesync.vesyncswitch import *  # noqa: F403, F401
+from . import (
+    vesyncbulb as bulb_mods,
+    vesyncfan as fan_mods,
+    vesyncoutlet as outlet_mods,
+    vesyncswitch as switch_mods,
+)
+from .helpers import Helpers
+from .vesyncbasedevice import VeSyncBaseDevice
 
 logger = logging.getLogger(__name__)
 
@@ -29,32 +27,32 @@ def object_factory(dev_type, config, manager) -> Tuple[str, VeSyncBaseDevice]:
     """Get device type and instantiate class."""
 
     def fans(dev_type, config, manager):
-        fan_cls = fan_mods.fan_modules[dev_type]  # noqa: F405
+        fan_cls = fan_mods.fan_modules[dev_type]
         fan_obj = getattr(fan_mods, fan_cls)
         return "fans", fan_obj(config, manager)
 
     def outlets(dev_type, config, manager):
-        outlet_cls = outlet_mods.outlet_modules[dev_type]  # noqa: F405
+        outlet_cls = outlet_mods.outlet_modules[dev_type]
         outlet_obj = getattr(outlet_mods, outlet_cls)
         return "outlets", outlet_obj(config, manager)
 
     def switches(dev_type, config, manager):
-        switch_cls = switch_mods.switch_modules[dev_type]  # noqa: F405
+        switch_cls = switch_mods.switch_modules[dev_type]
         switch_obj = getattr(switch_mods, switch_cls)
         return "switches", switch_obj(config, manager)
 
     def bulbs(dev_type, config, manager):
-        bulb_cls = bulb_mods.bulb_modules[dev_type]  # noqa: F405
+        bulb_cls = bulb_mods.bulb_modules[dev_type]
         bulb_obj = getattr(bulb_mods, bulb_cls)
         return "bulbs", bulb_obj(config, manager)
 
-    if dev_type in fan_mods.fan_modules:  # type: ignore  # noqa: F405
+    if dev_type in fan_mods.fan_modules:
         type_str, dev_obj = fans(dev_type, config, manager)
-    elif dev_type in outlet_mods.outlet_modules:  # type: ignore  # noqa: F405
+    elif dev_type in outlet_mods.outlet_modules:
         type_str, dev_obj = outlets(dev_type, config, manager)
-    elif dev_type in switch_mods.switch_modules:  # type: ignore  # noqa: F405
+    elif dev_type in switch_mods.switch_modules:
         type_str, dev_obj = switches(dev_type, config, manager)
-    elif dev_type in bulb_mods.bulb_modules:  # type: ignore  # noqa: F405
+    elif dev_type in bulb_mods.bulb_modules:
         type_str, dev_obj = bulbs(dev_type, config, manager)
     else:
         logger.debug(
@@ -67,7 +65,7 @@ def object_factory(dev_type, config, manager) -> Tuple[str, VeSyncBaseDevice]:
     return type_str, dev_obj
 
 
-class VeSync:  # pylint: disable=function-redefined
+class VeSync:
     """VeSync API functions."""
 
     def __init__(self, username, password, time_zone=DEFAULT_TZ, debug=False):
@@ -166,9 +164,8 @@ class VeSync:  # pylint: disable=function-redefined
     @staticmethod
     def set_dev_id(devices: list) -> list:
         """Correct devices without cid or uuid."""
-        dev_num = 0
         dev_rem = []
-        for dev in devices:
+        for dev_num, dev in enumerate(devices):
             if dev.get("cid") is None:
                 if dev.get("macID") is not None:
                     dev["cid"] = dev["macID"]
@@ -177,7 +174,6 @@ class VeSync:  # pylint: disable=function-redefined
                 else:
                     dev_rem.append(dev_num)
                     logger.warning("Device with no ID  - %s", dev.get("deviceName"))
-            dev_num += 1
             if dev_rem:
                 devices = [i for j, i in enumerate(devices) if j not in dev_rem]
         return devices
@@ -186,12 +182,9 @@ class VeSync:  # pylint: disable=function-redefined
         """Instantiate Device Objects."""
         devices = VeSync.set_dev_id(dev_list)
 
-        num_devices = 0
-        for _, v in self._dev_list.items():
-            if isinstance(v, list):
-                num_devices += len(v)
-            else:
-                num_devices += 1
+        num_devices = sum(
+            len(v) if isinstance(v, list) else 1 for _, v in self._dev_list.items()
+        )
 
         if not devices:
             logger.warning("No devices found in api return")
@@ -205,7 +198,7 @@ class VeSync:  # pylint: disable=function-redefined
 
         detail_keys = ["deviceType", "deviceName", "deviceStatus"]
         for dev in devices:
-            if not all(k in dev for k in detail_keys):
+            if any(k not in dev for k in detail_keys):
                 logger.debug("Error adding device")
                 continue
             dev_type = dev.get("deviceType")
@@ -253,10 +246,10 @@ class VeSync:  # pylint: disable=function-redefined
         """Return True if log in request succeeds."""
         user_check = isinstance(self.username, str) and len(self.username) > 0
         pass_check = isinstance(self.password, str) and len(self.password) > 0
-        if user_check is False:
+        if not user_check:
             logger.error("Username invalid")
             return False
-        if pass_check is False:
+        if not pass_check:
             logger.error("Password invalid")
             return False
 
@@ -275,12 +268,10 @@ class VeSync:  # pylint: disable=function-redefined
 
     def device_time_check(self) -> bool:
         """Test if update interval has been exceeded."""
-        if (
+        return (
             self.last_update_ts is None
             or (time.time() - self.last_update_ts) > self.update_interval
-        ):
-            return True
-        return False
+        )
 
     def update(self) -> None:
         """Fetch updated information about devices."""

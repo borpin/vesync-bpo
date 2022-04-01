@@ -1,42 +1,37 @@
-Forked from https://github.com/borpin/vesync-bpo
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+[![GitHub release](https://img.shields.io/github/release/iMicknl/ha-tahoma.svg)](https://GitHub.com/vlebourl/vesync-bpo/releases/)
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/vlebourl/vesync-bpo/)
 
-# VeSync custom-integration for Home-Assistant
+# VeSync custom component for Home Assistant
 
-This is a vesync integration that can be installed while waiting for main HA integration to be updated
+Custom component for Home Assistant to interact with smart devices via the VeSync platform.
 
-Install to a folder called `vesync2` in your `custom-integrations` folder and restart HA. Then Add a new integration and you will see the `vesync2` integration listed.
+## Installation
 
-The current HA Core PR this is pulled from is https://github.com/home-assistant/core/pull/62907
-Included 2 binary_sensors from https://github.com/alexanv1/core/tree/vesync_humidifier_support/homeassistant/components/vesync
+You can install this integration via [HACS](#hacs) or [manually](#manual).
+This integration will override the core VeSync integration.
 
-Key changes are that it now supports all devices and models found in the core Python Library https://github.com/webdjoe/pyvesync
+### HACS
 
-as at 30/03/22 there are still some wrinkles to iron out.
+This integration can be installed by adding this repository to HACS, then searching for `VeSync` and choosing install. Reboot Home Assistant and configure the 'VeSync' integration via the integrations page or press the blue button below.
 
-## Sample script to test what the Library is saying about your devices
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=vesync)
 
-```python
-from pyvesync import VeSync
-#from pyvesync.vesyncfan import model_features
+### Manual
 
-# TIME_ZONE and Debug are optional
-manager = VeSync("EMAIL", "PASSWORD", "TIME_ZONE", debug=True)
-manager.login()
+Copy the `custom_components/vesync` to your `custom_components` folder. Reboot Home Assistant and configure the 'Overkiz (by Somfy)' integration via the integrations page or press the blue button below.
 
-# Get/Update Devices from server - populate device lists
-manager.update()
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=vesync)
 
-# Display fan devices found
-for device in manager.fans:
-  device.display()
+### Enable debug logging
 
-# Other bits I did to test stuff
+The [logger](https://www.home-assistant.io/integrations/logger/) integration lets you define the level of logging activities in Home Assistant. Turning on debug mode will show more information about unsupported devices in your logbook.
 
-#my_fan = manager.fans[0]
-#print (manager.fans[0])
-#my_fan.set_humidity(40)
-#fan_features = model_features(my_fan.device_type)
-#print(model_features(my_fan.device_type)["module"])
-#print(my_fan.humidity)
-#my_fan.display()
+```yaml
+logger:
+  default: error
+  logs:
+    custom_components.vesync: debug
 ```
+
+This integration is heavily based on [VeSync_bpo](https://github.com/borpin/vesync-bpo) and [pyvesync](https://pypi.org/project/pyvesync/)
