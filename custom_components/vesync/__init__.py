@@ -21,7 +21,7 @@ from .const import (
     VS_SENSORS,
     VS_SWITCHES,
 )
-from .pyvesync import VeSync
+from .pyvesync.vesync import VeSync
 
 PLATFORMS = [
     Platform.SWITCH,
