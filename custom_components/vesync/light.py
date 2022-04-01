@@ -36,7 +36,9 @@ async def async_setup_entry(
         async_dispatcher_connect(hass, VS_DISCOVERY.format(VS_LIGHTS), discover)
     )
 
-    _setup_entities(hass.data[DOMAIN][VS_LIGHTS], async_add_entities)
+    _setup_entities(
+        hass.data[DOMAIN][config_entry.entry_id][VS_LIGHTS], async_add_entities
+    )
 
 
 @callback
