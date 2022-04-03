@@ -1,3 +1,11 @@
+# Deprecated
+
+@vlebourl has created an HACS installable version of the repo that simply overrides the core version so is a much better option:)
+
+https://github.com/vlebourl/custom_vesync
+
+Please use this version.
+
 # VeSync custom-integration for Home-Assistant
 
 This is a vesync integration that can be installed while waiting for main HA integration to be updated
